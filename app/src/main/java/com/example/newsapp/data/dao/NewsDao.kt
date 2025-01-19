@@ -16,5 +16,7 @@ interface NewsDao {
     @Insert
     suspend fun addNews(news: News) : Long
 
+    @Delete
+    suspend fun deleteNews(news: News) :Int
 
 }

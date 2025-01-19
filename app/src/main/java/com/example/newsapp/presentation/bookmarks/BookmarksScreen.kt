@@ -23,7 +23,7 @@ fun BookmarksScreen(navController: NavController) {
         Text("Bookmarks", fontSize = 30.sp)
         Spacer(modifier = Modifier.size(16.dp))
         NewsListView(bookmarks.value, onClick = {
-            navController.navigate(NavRoute.createNewsDetailsRoute(it))
+            navController.navigate(NavRoute.createNewsDetailsRoute(it,true))
         })
     }
 

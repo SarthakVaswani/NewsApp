@@ -11,10 +11,4 @@ class BookmarksViewModel @Inject constructor(database: NewsDB) : ViewModel() {
     private val newsDao = database.newsDAO()
 
     fun getBookmarks() = newsDao.getNews()
-
-
-    //fun deleteBookmarks(news : News) = viewModelScope.launch {
-// newsDao.deleteNews(news)}
-
-
 }

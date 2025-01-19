@@ -6,5 +6,8 @@ sealed class State<out T> {
     data object Loading : State<Nothing>()
     data class Success<T>(val data: T) : State<T>()
     data class Error(val error: String) : State<Nothing>()
+}
 
+enum class BookmarkState {
+    Added, Removed
 }

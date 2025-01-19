@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,16 +39,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.newsapp.data.modal.News
+import com.example.newsapp.presentation.BookmarkState
 import com.example.newsapp.presentation.State
 
 
 @Composable
-fun NewsScreenDetails(navController: NavController, news: News) {
-    NewsDetails(news = news,navController)
+fun NewsScreenDetails(navController: NavController, news: News, isLocal: Boolean = false) {
+    NewsDetails(news = news, navController, isLocal = isLocal)
 }
 
 @Composable
-fun NewsDetails(news: News,navController: NavController) {
+fun NewsDetails(news: News, navController: NavController, isLocal: Boolean = false) {
     val viewModel: NewsDetailsViewModel = hiltViewModel()
     Box(
         modifier = Modifier
@@ -126,24 +129,34 @@ fun NewsDetails(news: News,navController: NavController) {
 
         }
         Image(
-            imageVector = Icons.Filled.AddCircle,
+            imageVector = if (isLocal) Icons.Filled.Delete else Icons.Filled.Favorite,
             contentDescription = null,
             modifier = Modifier
                 .padding(16.dp)
+                .clip(CircleShape)
+                .background(Color.Red)
                 .height(48.dp)
                 .width(84.dp)
+                .padding(8.dp)
                 .align(Alignment.BottomEnd)
                 .clickable {
-                    viewModel.addNews(news)
+                    if (isLocal) viewModel.deleteNews(news) else viewModel.addNews(news)
                 }
         )
     }
 
     val context = LocalContext.current
     val state = viewModel.state.collectAsState()
-    LaunchedEffect(state) {
+    LaunchedEffect(state.value) {
+        if (state.value is State.Loading) {
+            return@LaunchedEffect
+        }
         if (state.value is State.Success) {
-            Toast.makeText(context, "Added to Fav", Toast.LENGTH_SHORT).show()
+
+            Toast.makeText(context, "Added to Bookmarks", Toast.LENGTH_SHORT).show()
+            if ((state.value as State.Success<BookmarkState>).data == BookmarkState.Removed) {
+                navController.popBackStack()
+            }
         } else {
             Toast.makeText(context, "Failed to add", Toast.LENGTH_SHORT).show()
         }

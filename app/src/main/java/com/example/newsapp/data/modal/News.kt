@@ -11,7 +11,7 @@ data class News(
     val authors: List<String>?,
     val category: String?,
     @PrimaryKey(autoGenerate = true) val id: Int?=null,
-    val image: String,
+    val image: String?,
     val language: String,
     val publish_date: String,
     val sentiment: Double,
@@ -19,6 +19,6 @@ data class News(
     val summary: String?,
     val text: String,
     val title: String,
-    val url: String,
+    val url: String?,
     val video: String?
 )

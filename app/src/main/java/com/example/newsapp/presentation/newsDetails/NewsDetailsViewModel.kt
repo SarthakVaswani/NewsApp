@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsapp.data.database.NewsDB
 import com.example.newsapp.data.modal.News
+import com.example.newsapp.presentation.BookmarkState
 import com.example.newsapp.presentation.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,8 +17,8 @@ class NewsDetailsViewModel @Inject constructor(
     database: NewsDB
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<State<Boolean>>(State.Loading)
-    val state = _state as StateFlow<State<Boolean>>
+    private val _state = MutableStateFlow<State<BookmarkState>>(State.Loading)
+    val state = _state as StateFlow<State<BookmarkState>>
 
     private val newsDao = database.newsDAO()
 
@@ -26,10 +27,23 @@ class NewsDetailsViewModel @Inject constructor(
             _state.value = State.Loading
             viewModelScope.launch {
                 newsDao.addNews(news)
-                _state.tryEmit(State.Success(true))
+                _state.tryEmit(State.Success(BookmarkState.Added))
+            }
+        } catch (e: Exception) {
+            _state.value = State.Error(e.message.toString())
+        }
+    }
+
+    fun deleteNews(news: News) {
+        try {
+            _state.value = State.Loading
+            viewModelScope.launch {
+                newsDao.deleteNews(news)
+                _state.tryEmit(State.Success(BookmarkState.Removed))
             }
         } catch (e: Exception) {
             _state.value = State.Error(e.message.toString())
         }
     }
 }
+
