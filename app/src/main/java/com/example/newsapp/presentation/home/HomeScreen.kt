@@ -2,6 +2,7 @@ package com.example.newsapp.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,23 +31,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.newsapp.data.modal.News
 import com.example.newsapp.presentation.State
+import com.example.newsapp.utils.NavRoute
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(navController: NavController) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState = viewModel.state.collectAsState()
     val searchText = remember {
         mutableStateOf("")
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(24.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+    ) {
         //searchbar
-        SearchBar (
+        SearchBar(
             text = searchText.value,
             onSearch = {
                 searchText.value = it
@@ -85,20 +90,28 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
             is State.Success -> {
                 val data = (uiState.value as State.Success).data
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    item { Text("News") }
-                    items(data.news) { article ->
-                        NewsItem(article)
-                    }
+                NewsListView(data.news) {
+                    navController.navigate(NavRoute.createNewsDetailsRoute(it))
                 }
+
             }
 
         }
     }
 }
 
+
+@Composable
+fun NewsListView(news: List<News>, onClick: (News) -> Unit) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item { Text("News") }
+        items(news) { article ->
+            NewsItem(article, onClick = { onClick(article) })
+        }
+    }
+}
 
 @Composable
 fun SearchBar(text: String, onSearch: (String) -> Unit) {
@@ -124,7 +137,7 @@ fun SearchBar(text: String, onSearch: (String) -> Unit) {
 }
 
 @Composable
-fun NewsItem(news: News) {
+fun NewsItem(news: News, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(vertical = 4.dp)
@@ -132,6 +145,7 @@ fun NewsItem(news: News) {
             .height(130.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color.Red.copy(alpha = 0.2f))
+            .clickable { onClick() }
     )
     {
         AsyncImage(

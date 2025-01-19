@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -59,8 +57,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.dagger.hilt.android)
-    implementation(libs.retrofit){
-        exclude(module = "okhttp")}
+    implementation(libs.retrofit) {
+        exclude(module = "okhttp")
+    }
     implementation(libs.gson)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.retrofit.okhttp)
@@ -69,6 +68,17 @@ dependencies {
     kapt(libs.dagger.hilt.compiler)
     implementation(libs.dagger.hilt.compose.navigation)
     implementation(libs.coil)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.constraint)
+//    implementation(libs.room.runtime)
+//    annotationProcessor(libs.room.compiler)
+//    kapt(libs.room.compiler)
+//    implementation(libs.room.ktx)
+
+        implementation ("androidx.room:room-runtime:2.6.1")
+        kapt ("androidx.room:room-compiler:2.6.1")
+        implementation ("androidx.room:room-ktx:2.6.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
