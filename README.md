@@ -3,7 +3,7 @@
 A sleek and modern Android news application built with Jetpack Compose, featuring a beautiful UI with floating action bars and smooth animations.
 
 <img src="https://github.com/user-attachments/assets/3d29f3c5-53e6-49d8-93f0-fcc6da2061a4" width="240" />
-
+<img src="https://github.com/user-attachments/assets/a4e953ff-4ae6-43b2-b747-366be58ba18a" width="240" />
 <img src="https://github.com/user-attachments/assets/1867f996-ac77-4c25-8bc4-ee43ad5683e2" width="240" />
 
 
