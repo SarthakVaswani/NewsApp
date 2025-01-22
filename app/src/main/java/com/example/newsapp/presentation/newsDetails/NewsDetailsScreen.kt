@@ -1,17 +1,19 @@
 package com.example.newsapp.presentation.newsDetails
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,21 +22,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -51,114 +58,179 @@ fun NewsScreenDetails(navController: NavController, news: News, isLocal: Boolean
 @Composable
 fun NewsDetails(news: News, navController: NavController, isLocal: Boolean = false) {
     val viewModel: NewsDetailsViewModel = hiltViewModel()
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Gray.copy(alpha = 0.1f))
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        AsyncImage(
-            model = news.image, contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            contentScale = ContentScale.Crop
-        )
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) { // to tell section is scroll
-            val (backBtn, topSpace, summary, newsContent) = createRefs()
-
-            Spacer(modifier = Modifier
-                .height(350.dp)
-                .constrainAs(topSpace) {
-                    top.linkTo(parent.top)
-                })
-            Image(
-                imageVector = Icons.Filled.ArrowBack, contentDescription = null,
+        // Content below back button
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Header Image with Gradient Overlay
+            Box(
                 modifier = Modifier
-                    .height(24.dp)
-                    .width(24.dp)
-                    .constrainAs(backBtn) {
-                        top.linkTo(parent.top, margin = 16.dp)
-                        start.linkTo(parent.start, margin = 16.dp)
-                    }
-                    .clickable {
-                        navController.popBackStack()
-                    }
-            )
-            Box(modifier = Modifier
-                .constrainAs(newsContent) {
-                    top.linkTo(topSpace.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                    height = Dimension.wrapContent // check
-                }
-                .padding(top = 24.dp)
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(Color.White)
-                .padding(vertical = 50.dp, horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(350.dp)
             ) {
-                Text(
-                    text = news.text, fontSize = 14.sp,
-                    modifier = Modifier.fillMaxSize()
+                AsyncImage(
+                    model = news.image,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
+                // Gradient overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.7f),
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f)
+                                )
+                            )
+                        )
                 )
             }
+
+            // Content
             Column(
                 modifier = Modifier
-                    .padding(vertical = 16.dp)
-                    .width(300.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.LightGray)
-                    .padding(8.dp)
-                    .constrainAs(summary) {
-                        top.linkTo(topSpace.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(topSpace.bottom)
-                    }
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
             ) {
-                Text(text = news.publish_date, fontSize = 12.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = news.title, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = news.authors?.joinToString(", ") ?: "", fontSize = 10.sp)
-            }
+                Spacer(modifier = Modifier.height(280.dp))
 
-        }
-        Image(
-            imageVector = if (isLocal) Icons.Filled.Delete else Icons.Filled.Favorite,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(16.dp)
-                .clip(CircleShape)
-                .background(Color.Red)
-                .height(48.dp)
-                .width(84.dp)
-                .padding(8.dp)
-                .align(Alignment.BottomEnd)
-                .clickable {
-                    if (isLocal) viewModel.deleteNews(news) else viewModel.addNews(news)
+                // Article Details Card
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 4.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                    ) {
+                        // Article metadata
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = news.publish_date,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = news.authors?.firstOrNull() ?: "",
+                                    modifier = Modifier.padding(
+                                        horizontal = 12.dp,
+                                        vertical = 6.dp
+                                    ),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Title
+                        Text(
+                            text = news.title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Content
+                        Text(
+                            text = news.text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 24.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(80.dp))
+                    }
                 }
-        )
+            }
+        }
+
+        // Back button on top of everything
+        Box(
+            modifier = Modifier
+                .padding(top = 24.dp, start = 24.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.5f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(bounded = true)
+                ) {
+                    navController.popBackStack()
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        // Floating Action Button
+        FloatingActionButton(
+            onClick = {
+                if (isLocal) viewModel.deleteNews(news) else viewModel.addNews(news)
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ) {
+            Icon(
+                imageVector = if (isLocal) Icons.Filled.Delete else Icons.Filled.Favorite,
+                contentDescription = if (isLocal) "Remove from bookmarks" else "Add to bookmarks"
+            )
+        }
     }
 
+    // State handling
     val context = LocalContext.current
     val state = viewModel.state.collectAsState()
     LaunchedEffect(state.value) {
-        if (state.value is State.Loading) {
-            return@LaunchedEffect
-        }
-        if (state.value is State.Success) {
-
-            Toast.makeText(context, "Added to Bookmarks", Toast.LENGTH_SHORT).show()
-            if ((state.value as State.Success<BookmarkState>).data == BookmarkState.Removed) {
-                navController.popBackStack()
+        when (state.value) {
+            is State.Success -> {
+                val message =
+                    if ((state.value as State.Success<BookmarkState>).data == BookmarkState.Removed) {
+                        navController.popBackStack()
+                        "Removed from bookmarks"
+                    } else "Added to bookmarks"
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(context, "Failed to add", Toast.LENGTH_SHORT).show()
+
+            is State.Error -> {
+                Toast.makeText(context, "Operation failed", Toast.LENGTH_SHORT).show()
+            }
+
+            else -> Unit
         }
     }
 }
