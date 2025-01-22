@@ -35,9 +35,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -115,7 +117,14 @@ fun NewsListView(news: List<News>, onClick: (News) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        item { Text("News") }
+        item { 
+            Text(
+                "News",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) 
+        }
         items(news) { article ->
             NewsItem(article, onClick = { onClick(article) })
         }
@@ -199,45 +208,72 @@ fun SearchBar(text: String, onSearch: (String) -> Unit) {
 fun NewsItem(news: News, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .padding(vertical = 4.dp)
+            .padding(vertical = 8.dp)  // Increased padding between items
             .fillMaxWidth()
             .height(130.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.Red.copy(alpha = 0.2f))
+            .background(Color.Black.copy(alpha = 0.5f))  // Darker overlay
             .clickable { onClick() }
-    )
-    {
+    ) {
         AsyncImage(
             model = news.image,
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
+        
+        // Gradient overlay for better text readability
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.7f)
+                        )
+                    )
+                )
         )
-        {
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)  // Increased padding
+        ) {
             Text(
                 text = news.title,
                 color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.TopCenter)
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth(0.85f),  // Limit width for better readability
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
 
-            )
-            Text(
-                text = news.publish_date,
-                color = Color.White,
-                modifier = Modifier.align(Alignment.BottomEnd)
-
-            )
-            Text(
-                text = news.authors?.joinToString(", ") ?: "",
-                color = Color.White,
-                modifier = Modifier.align(Alignment.BottomStart)
-            )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = news.authors?.joinToString(", ") ?: "",
+                    color = Color.White.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = news.publish_date,
+                    color = Color.White.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
         }
     }
-
-
 }
